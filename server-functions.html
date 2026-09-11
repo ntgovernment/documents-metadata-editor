@@ -1,35 +1,6 @@
 <!--@@ SERVER SIDE (BEFORE PAGE LOADS) FUNCTIONS @@-->
 <script runat="server">
 
-    function makeDropdown(data, currentvalue, label) {
-
-        if (!data.hasOwnProperty('attributes')) {
-            return '';
-        }
-
-        var options = data.attributes.select_options.value;
-        var optionKeys = Object.keys(options);
-        var optionsList = [];
-        var currentLower = String(currentvalue).toLowerCase().trim();
-        var matchedKey = '';
-
-        Object.keys(options).forEach(function (key) {
-            var keyLower = String(key).toLowerCase();
-            var labelLower = String(options[key]).toLowerCase();
-            var isSelected = (keyLower === currentLower || labelLower === currentLower);
-            if (isSelected && !matchedKey) { matchedKey = key; }
-            optionsList.push('<option value="' + key + '"' + (isSelected ? ' selected' : '') + '>' + options[key] + '</option>');
-        });
-
-        return '<select class="metadata_options"' +
-            ' data-metadataFieldid="' + metadatafield.assetid + '"' +
-            ' data-current="' + (matchedKey || currentvalue) + '"' +
-            (label ? ' data-label="' + label + '"' : '') + '>' +
-            '<option value=""></option>' +
-            optionsList.join('') +
-            '</select>';
-    }
-
     // Helper for rendering the Status dropdown.
     //
     // The Squiz Matrix asset status is a reserved property (not a custom attribute).
@@ -78,6 +49,38 @@
             ' data-attributename="status"' +
             ' data-current="' + currentStatusCode + '"' +
             (label ? ' data-label="' + label + '"' : '') + '>' +
+            optionsList.join('') +
+            '</select>';
+    }
+
+    // Helper for rendering the Resource Type dropdown.
+    //
+    // The option list is hardcoded here (rather than looked up from the
+    // metadata field's select_options via %globals_asset_assetid:834003^as_asset:asset_data%)
+    // because that lookup depends on asset_data permissions/field ID being
+    // correct, and previously returned no options on this site. Field ID 834003
+    // is still used for data-metadatafieldid so saves go to the right field.
+    function makeResourceTypeDropdown(currentvalue, label) {
+        var options = [
+            'Instruction', 'General order', 'Form', 'Guideline', 'Procedure',
+            'Report', 'Plan', 'Fees', 'Informational', 'Legislation',
+            'Delegation', 'Policy', 'Memorandum', 'Training program', 'Template'
+        ];
+        var currentLower = String(currentvalue).toLowerCase().trim();
+        var matchedValue = '';
+        var optionsList = [];
+
+        options.forEach(function (opt) {
+            var isSelected = String(opt).toLowerCase() === currentLower;
+            if (isSelected) { matchedValue = opt; }
+            optionsList.push('<option value="' + opt + '"' + (isSelected ? ' selected' : '') + '>' + opt + '</option>');
+        });
+
+        return '<select class="metadata_options"' +
+            ' data-metadataFieldid="834003"' +
+            ' data-current="' + (matchedValue || currentvalue) + '"' +
+            (label ? ' data-label="' + label + '"' : '') + '>' +
+            '<option value=""></option>' +
             optionsList.join('') +
             '</select>';
     }

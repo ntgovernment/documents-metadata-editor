@@ -64,12 +64,10 @@
     <td class="metadata-editor">
         <script runat="server">
 
-            //SET THESE TWO VARIABLES
-            var metadatafield = %globals_asset_assetid:834003^as_asset:asset_data%;
             var currentvalue = "%asset_metadata_resource.doctype%";
 
-            //... creates a dropdown field based on metadata information - see server-functions.html
-            print(makeDropdown(metadatafield, currentvalue, 'resource type'));
+            //... creates a dropdown field with a hardcoded option list - see server-functions.html
+            print(makeResourceTypeDropdown(currentvalue, 'resource type'));
             print(`<span class="d-none">${currentvalue}</span>`);
 
         </script>

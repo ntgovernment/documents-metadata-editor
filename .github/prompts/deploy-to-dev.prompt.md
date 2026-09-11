@@ -27,12 +27,12 @@ Generate a commit message that summarises the changes made during this chat sess
 Example format:
 
 ```
-Fix agency save: sync advertise field to backend on agency change
+Add Resource Type column filter and fix Status save on file assets
 
-- editor.js: agency save handler now calls submit() for advertise (446182)
-  immediately, preserving WoG state and replacing old agency code
+- editor.js: added Resource Type to filterConfigs; fixed submitStatusAttribute
+  fallback when asset has no existing status label
 - eoi-metadata-editor.css: added .alert-error rule with danger palette colours
-- DEVELOPER_NOTES.md: updated Agency–Advertise section and change history
+- DEVELOPER_NOTES.md: updated field reference and change history
 ```
 
 Run:
@@ -50,6 +50,6 @@ git push origin dev
 ## Notes
 
 - Only commit `src/editor.js`, `src/eoi-metadata-editor.css`, `row-template.html`, `server-functions.html`, and documentation files (`DEVELOPER_NOTES.md`, `.github/**`).
-- Do **not** commit `EOI metadata editor _ NTG Central.html` — it is a locally-sanitised copy of the production page and is not deployed via git.
-- Do **not** commit `EOI metadata editor _ NTG Central_files/` — these are gitignored browser-saved production assets.
+- Do **not** commit `Documents metadata editor _ NTG Central.html` — it is a locally-sanitised copy of the production page and is not deployed via git.
+- Do **not** commit `Documents metadata editor _ NTG Central_files/` — these are gitignored browser-saved production assets.
 - `src/update-metadata.js` is read-only; only commit it if it was intentionally updated.

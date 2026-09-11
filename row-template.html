@@ -2,8 +2,14 @@
 
 <tr id="%asset_assetid%" data-status="%asset_status_description%">
 
-    <!--@@ ID @@-->
-    <td class="bg-%asset_metadata_status%">
+    <!--@@ No @@-->
+    <td>%asset_position%</td>
+
+    <!--@@ Type @@-->
+    <td>%asset_type%</td>
+
+    <!--@@ Asset ID @@-->
+    <td>
         <a href="./?a=%asset_assetid%/_admin" target="_blank">%asset_assetid%</a>
     </td>
 
@@ -13,139 +19,50 @@
         var statusMapping = { '1': 'Archive', '2': 'Under Construction', '16': 'Live', '64': 'Safe Editing' };
         var statusCodeKey = '';
         var currentLower = String(currentstatus).toLowerCase().trim();
-        
+
         Object.keys(statusMapping).forEach(function(code) {
             var labelLower = String(statusMapping[code]).toLowerCase();
             // Match "Archive" or "Archived", "Live" or "Live", etc.
-            if (String(code).toLowerCase() === currentLower || 
-                labelLower === currentLower || 
+            if (String(code).toLowerCase() === currentLower ||
+                labelLower === currentLower ||
                 (labelLower + 'd') === currentLower) {
                 statusCodeKey = String(statusMapping[code]).toLowerCase().replace(/ /g, '-');
             }
         });
-        
+
         var dataStatus = statusCodeKey ? ' data-status="' + statusCodeKey + '"' : '';
         print('<td class="metadata-editor"' + dataStatus + ' style="background-color:%asset_status_colour%">');
-    </script>
-    <script runat="server">
-        var currentstatus = "%asset_status_description%";
-        var statusMapping = { '1': 'Archive', '2': 'Under Construction', '16': 'Live', '64': 'Safe Editing' };
-        var statusCodeKey = '';
-        var currentLower = String(currentstatus).toLowerCase().trim();
-        
-        Object.keys(statusMapping).forEach(function(code) {
-            var labelLower = String(statusMapping[code]).toLowerCase();
-            // Match "Archive" or "Archived", "Live" or "Live", etc.
-            if (String(code).toLowerCase() === currentLower || 
-                labelLower === currentLower || 
-                (labelLower + 'd') === currentLower) {
-                statusCodeKey = String(statusMapping[code]).toLowerCase().replace(/ /g, '-');
-            }
-        });
-        
-        var dataStatus = statusCodeKey ? ' data-status="' + statusCodeKey + '"' : '';
         print('<div class="metadata_option_display" data-label="status"' + dataStatus + '>' + currentstatus + '</div>');
         print(makeStatusDropdown(currentstatus, 'status'));
     </script>
     </td>
 
-    <!--@@ File Name @@-->
+    <!--@@ Name @@-->
     <td class="attribute-editor">
-        <div class="edit_area" data-attributename="name" data-label="file name">%asset_name%</div>
+        <div class="edit_area" data-attributename="name" data-label="name">%asset_name%</div>
     </td>
 
-    <!--@@ Title @@-->
-    <td class="attribute-editor">
-        <script runat="server">
-            var typeCode = "%asset_type_code%";
-            var fileTypes = ["file", "word_doc", "ms_word_doc", "ms_word_doc2007", "pdf_file", "ms_excel", "ms_excel2007", "ms_powerpoint", "ms_powerpoint2007", "text_file"];
-            if (fileTypes.indexOf(typeCode) !== -1) {
-                print('<div class="edit_area" data-attributename="title" data-label="title">%asset_attribute_title%</div>');
-            } else {
-                print('<div class="edit_area" data-attributename="short_name" data-label="title">%asset_short_name%</div>');
-            }
-        </script>
-    </td>
-
-    <!--@@ Position title @@-->
-    <td class="metadata-editor">
-        <div class="edit_area" data-metadataFieldID="445504" data-label="position title">%asset_metadata_job.title%</div>
-    </td>
-
-    <!--@@ Designation @@-->
+    <!--@@ Resource Type @@-->
     <td class="metadata-editor">
         <script runat="server">
 
             //SET THESE TWO VARIABLES
-            var metadatafield = %globals_asset_assetid:445634^as_asset:asset_data%;
-            var currentvalue = "%asset_metadata_job.designation%";
+            var metadatafield = %globals_asset_assetid:834003^as_asset:asset_data%;
+            var currentvalue = "%asset_metadata_resource_doctype%";
 
-            //... creates a multi-select field based on metadata information - see global function in #911527
-            print(makeMultiSelect(metadatafield, currentvalue, 'designation'));
+            //... creates a dropdown field based on metadata information - see server-functions.html
+            print(makeDropdown(metadatafield, currentvalue, 'resource type'));
             print(`<span class="d-none">${currentvalue}</span>`);
 
         </script>
     </td>
 
-    <!--@@ Close date @@-->
+    <!--@@ Resource Description @@-->
     <td class="metadata-editor">
-        <div class="edit_area datepicker-field" data-metadataFieldID="445509" data-datepicker="true" data-label="close date">%asset_metadata_job.closing-date%</div>
+        <div class="edit_area" data-metadataFieldID="834005" data-label="resource description">%asset_metadata_resource_description%</div>
     </td>
 
-    <!--@@ Duration @@-->
-    <td class="metadata-editor">
-        <div class="edit_area" data-metadataFieldID="445506" data-label="duration">%asset_metadata_job.duration%</div>
-    </td>
-
-    <!--@@ Agency @@-->
-    <td class="metadata-editor">
-        <script runat="server">
-
-            //SET THESE TWO VARIABLES
-            var metadatafield = %globals_asset_assetid:445640^as_asset:asset_data%;
-            var currentvalue = "%asset_metadata_job.agency%";
-
-            //... creates a dropdown field based on metadata information - see global function in #911527
-            print(makeDropdown(metadatafield, currentvalue, 'agency'));
-            print(`<span class="d-none">${currentvalue}</span>`);
-
-        </script>
-    </td>
-
-    <!--@@ Location @@-->
-    <td class="metadata-editor">
-
-        <script runat="server">
-
-            //SET THESE TWO VARIABLES
-            var metadatafield = %globals_asset_assetid:445518^as_asset:asset_data%;
-            var currentvalue = "%asset_metadata_job.location%";
-            //print(currentvalue);
-
-            //... creates a multi-select field based on metadata information - see global function in #911527
-            print(makeMultiSelect(metadatafield, currentvalue, 'location'));
-            print(`<span class="d-none">${currentvalue}</span>`);
-
-        </script>
-
-    </td>
-
-    <!--@@ NTG Central and/or agency intranets @@-->
-    <td class="metadata-editor">
-
-        <script runat="server">
-
-            //SET THESE TWO VARIABLES
-            var metadatafield = %globals_asset_assetid:446182^as_asset:asset_data%;
-            var currentvalue = "%asset_metadata_job.advertise%";
-            //print(currentvalue);
-
-            //... creates a multi-select field based on metadata information - see global function in #911527
-            print(makeMultiSelect(metadatafield, currentvalue, 'NTG Central / intranets'));
-            print(`<span class="d-none">${currentvalue}</span>`);
-
-        </script>
-
-    </td>
+    <!--@@ URL @@-->
+    <td><a href="%asset_url%" target="_blank">%asset_url%</a></td>
 
 </tr>

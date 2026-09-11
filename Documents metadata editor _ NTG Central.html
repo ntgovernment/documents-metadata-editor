@@ -8,7 +8,7 @@
     <head>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         
-<title>EOI metadata editor | NTG Central</title>
+<title>Documents metadata editor | NTG Central</title>
 
 
 <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
@@ -865,32 +865,35 @@ if (typeof localStorage !== "undefined") {
         <div id="content" class="ntgc-body">
             
 <div class="container py-5" id="intro_948820">
-<p>If you are unable to see your changes try Ctrl+F5 or add /_nocache to the page's URL.</p><p>To add a new expression of interest, use the <a href="http://cmsinternal.nt.gov.au/_users/azure-users-de/awp5knj0ub72ch42fnxu1vxn9eieplaooagqrstrcnc">direct publish EOI form</a>.</p>
+<p>If you are unable to see your changes try Ctrl+F5 or add /_nocache to the page's URL.</p>
 </div>
-<!--OVERRIDE DESIGN FILE: Content Staging Metadata Editor #264249-->
+<!--OVERRIDE DESIGN FILE: Documents and Images Metadata Editor #993859-->
 
-<link rel="stylesheet" href="https://ntgcentral.nt.gov.au/__data/assets/git_bridge/0009/948834/src/bootstrap.min.css?h=a1c7c44">
-<link rel="stylesheet" href="https://ntgcentral.nt.gov.au/__data/assets/git_bridge/0009/948834/src/bootstrap-datepicker.min.css?h=a1c7c44"><!--https://ntgcentral-dev.nt.gov.au/internal-vacancies/eoi-metadata-editor/configuration/bootstrap-datepicker.min.css-->
+<link rel="stylesheet" href="https://ntgcentral.nt.gov.au/__data/assets/git_bridge/0009/993859/src/bootstrap.min.css?h=a1c7c44">
 
-<link rel="stylesheet" href="./src/eoi-metadata-editor.css"><!--https://ntgcentral-dev.nt.gov.au/internal-vacancies/eoi-metadata-editor/configuration/eoi-metadata-editor.css--><div style="width: 100%">
+<link rel="stylesheet" href="./src/eoi-metadata-editor.css"><div style="width: 100%">
         
     <table id="myTable" class="table">
         <thead>
             <tr>
-                <th>ID</th>
+                <th>No</th>
+                <th>Type</th>
+                <th>Asset ID</th>
                 <th>Status</th>
-                <th>Document file name</th>
-                <th>Document title</th>
-                <th>Position title</th>
-                <th>Designation</th>
-                <th>Close date</th>
-                <th>Vacancy duration</th>
-                <th>Agency</th>
-                <th>Location</th>
-                <th>Where to advertise this job</th>
+                <th>Name</th>
+                <th>Resource Type</th>
+                <th>Resource Description</th>
+                <th>URL</th>
             </tr>
         </thead>
         <tbody>
+            <!--
+              NOTE FOR DEV: the row markup below is still a sample copied from
+              the old EOI page. Once the Documents & Images listing page exists
+              in Squiz, re-save its production HTML over this file (see
+              DEVELOPER_NOTES.md > HTML Sanitisation Checklist) so the sample
+              rows reflect the new row-template.html structure.
+            -->
             <!--TYPE FORMAT / DEFAULT FORMAT-->
 
 <tr id="787797" data-status="Under Construction">
@@ -3867,8 +3870,6 @@ if (typeof localStorage !== "undefined") {
 
 <script src="./src/jquery-3.4.1.min.js"></script> <!--https://ntgcentral-dev.nt.gov.au/__data/assets/js_file/0017/264320/jquery-3.4.1.min.js-->
 <script src="https://ntgcentral.nt.gov.au/_web_services/update-metadata.js"></script> <!--https://ntgcentral-dev.nt.gov.au/_web_services/update-metadata.js-->
-<script src="./src/jquery.editable.js"></script> <!--https://internal-dev.nt.gov.au/data-and-reporting/js-and-css/js/jquery.editable.js-->
-<script src="./src/bootstrap-datepicker.min.js"></script> <!--https://ntgcentral-dev.nt.gov.au/internal-vacancies/eoi-metadata-editor/configuration/bootstrap-datepicker.min.js-->
 <script src="./src/datatables.lib.js"></script> <!--https://ntgcentral-dev.nt.gov.au/__data/assets/js_file_folder/0003/363018/datatables.lib.js-->
 
 <!--WRITE CLIENT-SIDE SCRIPT HERE-->

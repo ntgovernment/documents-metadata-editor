@@ -1,8 +1,10 @@
-# EOI Metadata Editor — Developer Notes
+# Documents & Images Metadata Editor — Developer Notes
+
+> **2026-09-11: repurposed from the EOI metadata editor.** This repo was forked from the NTG Central EOI job-vacancy metadata editor and retargeted at the "Documents and Images" asset listing (Squiz Configuration folder #993859). Job-specific fields (designation, agency, location, close date, duration, advertise) and the Auto Rename feature were removed. Most of the change history below (Agency/Advertise, Auto Rename, Vacancy Duration, etc.) predates the repurposing and describes the old EOI behaviour for historical reference only — it no longer applies to the current field set.
 
 ## Overview
 
-This tool is a browser-based inline editor for Squiz Matrix asset metadata and attributes. It is developed locally using Vite as a dev server, serving a saved copy of the production page (`EOI metadata editor _ NTG Central.html`) with local asset files.
+This tool is a browser-based inline editor for Squiz Matrix asset metadata and attributes, used on the "Documents and Images" asset listing. It is developed locally using Vite as a dev server, serving a saved copy of the production page (`Documents metadata editor _ NTG Central.html`) with local asset files.
 
 Changes to interaction logic are made in `src/editor.js`, then deployed to the NTG Central Squiz Matrix instance. The HTML page itself is periodically re-saved from production and sanitised using the checklist below.
 
@@ -43,7 +45,7 @@ Changes to interaction logic are made in `src/editor.js`, then deployed to the N
 
 | File/Directory                                       | Role                                                                   | Editable?                           |
 | ---------------------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------- |
-| `EOI metadata editor _ NTG Central.html`             | Saved production page — the local dev entry point                      | Sanitise only (see checklist below) |
+| `Documents metadata editor _ NTG Central.html`             | Saved production page — the local dev entry point                      | Sanitise only (see checklist below) |
 | `src/editor.js`                                      | Custom interaction logic — event handlers, API calls, UI feedback      | **Yes**                             |
 | `src/update-metadata.js`                             | Squiz Matrix JS API library                                            | Read-only                           |
 | `src/jquery-3.4.1.min.js`                            | jQuery 3.4.1                                                           | Read-only                           |
@@ -447,7 +449,7 @@ Run this checklist from top to bottom every time the HTML page is re-saved from 
 - If a `.download` file is a duplicate of an existing clean file, delete the `.download` version.
 - If a file exists _only_ as `.download` (no clean version), rename it.
 
-**Check:** `grep -c "\.download" "EOI metadata editor _ NTG Central.html"` should output `0`.
+**Check:** `grep -c "\.download" "Documents metadata editor _ NTG Central.html"` should output `0`.
 
 ---
 
@@ -463,7 +465,7 @@ Run this checklist from top to bottom every time the HTML page is re-saved from 
 </script>
 ```
 
-**Check:** `grep "JSON.parse" "EOI metadata editor _ NTG Central.html"` should return no results.
+**Check:** `grep "JSON.parse" "Documents metadata editor _ NTG Central.html"` should return no results.
 
 ---
 
@@ -596,7 +598,7 @@ The earlier section on the IIFE already ensures the correct jQuery instance is u
 console.log(userAssetID + "uidtest");
 ```
 
-**Check:** `grep "uidtest\|console\.log" "EOI metadata editor _ NTG Central.html"` — review each match and remove development-only logs.
+**Check:** `grep "uidtest\|console\.log" "Documents metadata editor _ NTG Central.html"` — review each match and remove development-only logs.
 
 ---
 
@@ -621,7 +623,7 @@ console.log(userAssetID + "uidtest");
 **Fix:** Run this PowerShell block from the project root (adjust if field IDs change):
 
 ```powershell
-$f = 'EOI metadata editor _ NTG Central.html'
+$f = 'Documents metadata editor _ NTG Central.html'
 $c = Get-Content $f -Raw -Encoding UTF8
 
 # .edit_area divs
@@ -644,7 +646,7 @@ $c = $c -replace '(class="metadata_option_display") style="cursor: pointer; min-
 Set-Content $f $c -Encoding UTF8 -NoNewline
 ```
 
-**Check:** `grep -c 'data-label=' "EOI metadata editor _ NTG Central.html"` — should report a non-zero count (approximately 9× number of rows, one per editable column per row).
+**Check:** `grep -c 'data-label=' "Documents metadata editor _ NTG Central.html"` — should report a non-zero count (approximately 9× number of rows, one per editable column per row).
 
 ---
 
@@ -657,13 +659,13 @@ Set-Content $f $c -Encoding UTF8 -NoNewline
 **Fix (PowerShell):**
 
 ```powershell
-$f = 'EOI metadata editor _ NTG Central.html'
+$f = 'Documents metadata editor _ NTG Central.html'
 $c = Get-Content $f -Raw -Encoding UTF8
 $c = $c -replace 'https://ntgcentral\.nt\.gov\.au/__data/assets/git_bridge/[^/]+/[^/]+/src/([^?]+)\?h=[a-f0-9]+', './src/$1'
 Set-Content $f $c -Encoding UTF8 -NoNewline
 ```
 
-**Check:** `grep -c "git_bridge" "EOI metadata editor _ NTG Central.html"` should output `0`.
+**Check:** `grep -c "git_bridge" "Documents metadata editor _ NTG Central.html"` should output `0`.
 
 ---
 
@@ -714,11 +716,7 @@ Use this sequence for most changes to avoid regressions:
 | Changes not appearing in search / sort after edit   | Verify post-save callback calls `dtTable.row(tr).invalidate('dom').draw(false)`; see Row Invalidation in DataTables section                                        |
 | Pagination controls not appearing                   | Verify DataTables initialization; check browser console for JS errors during `$('#myTable').DataTable({...})`                                                      |
 | Filtering / global search not working               | Verify `searching: true` in DataTables config; test by typing in the search box above the table                                                                    |
-| Auto button missing on Document Title or File Name  | Check `data-attributename` is `"title"`, `"short_name"`, or `"name"`; all other attribute names return `null` from `autoRenameButtonFactory`                       |
-| Auto button generates wrong prefix (Title)          | Prefix is read from the **File Name display text** — check that cell's text contains the position number or SUPN keyword; see _Auto Rename button_ prefix logic    |
-| Auto button generates wrong prefix (File Name)      | Prefix is read from the **current textarea value** (existing filename) — check it contains the expected digits or SUPN/supernumerary                               |
-| Auto button produces double spaces (Title)          | An empty segment (designation or agency); `filter(Boolean)` should prevent this — check `select.val()` returns on field IDs 445634 and 445640                      |
-| Auto button produces double hyphens (File Name)     | An empty segment or `slugify()` returning empty — check `select.val()` returns and that position title is non-empty                                                |
+| Auto button / Auto Rename feature                   | _Removed_ — this repo no longer includes the Auto Rename feature (it depended on job-specific fields)                                                              |
 | Error toast has no background colour                | `.alert-error` CSS rule missing or overridden; check `src/eoi-metadata-editor.css`. Bootstrap only defines `.alert-danger`, not `.alert-error`                     |
 | Save toast not announced by screen reader           | ARIA attributes missing on `.results` div; check `editor.js` DOM-ready block sets `role="alert"`, `aria-live="assertive"`, `aria-atomic="true"`                    |
 
@@ -726,23 +724,18 @@ Use this sequence for most changes to avoid regressions:
 
 ## Metadata field ID reference
 
-| Column             | Squiz field name   | Field ID | Type          | Notes                                                        |
-| ------------------ | ------------------ | -------- | ------------- | ------------------------------------------------------------ |
-| Position title     | `job.title`        | 445504   | Free text     | Inline textarea edit                                         |
-| Designation        | `job.designation`  | 445634   | Multi-select  | All options unrestricted                                     |
-| Close date         | `job.closing-date` | 445509   | Date          | Bootstrap datepicker; stored as ISO, displayed as DD/MM/YYYY |
-| Vacancy duration   | `job.duration`     | 445506   | Free text     | Inline textarea edit                                         |
-| Agency             | `job.agency`       | 445640   | Single-select | Saving also auto-saves Advertise (446182)                    |
-| Location           | `job.location`     | 445518   | Multi-select  | All options unrestricted                                     |
-| Where to advertise | `job.advertise`    | 446182   | Multi-select  | Options restricted to WoG + current Agency when editing      |
+| Column                | Squiz field name       | Field ID | Type          | Notes                                                        |
+| --------------------- | ----------------------- | -------- | ------------- | ------------------------------------------------------------ |
+| Resource Type         | `resource.doctype`      | 834003   | Single-select | Rendered via `makeDropdown()`                                |
+| Resource Description  | `resource.description`  | 834005   | Free text     | Inline textarea edit                                         |
 
 Attribute columns (not metadata — use `js_api.setAttribute`):
 
-| Column    | `data-attributename` | Notes                                                                                                                       |
-| --------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| File Name | `name`               | All asset types; uses retry-with-lock pattern for "details" screen (see _Locking for the `name` attribute_ in Architecture) |
-| Title     | `title`              | File assets only (Word, PDF, etc.); server auto-locks "attributes" screen                                                   |
-| Title     | `short_name`         | Non-file assets; `short_name→title` retry fallback active in `resultAttr()`; server auto-locks "attributes" screen          |
+| Column | `data-attributename` | Notes                                                                                                                       |
+| ------ | --------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Name   | `name`                | All asset types; uses retry-with-lock pattern for "details" screen (see _Locking for the `name` attribute_ in Architecture) |
+
+Status is a reserved asset property (not custom metadata) — see _Status column colour system_ below.
 
 ---
 
@@ -1712,7 +1705,7 @@ $existing.attr("data-label", $select.attr("data-label") || "");
 
 ### 2026-03-07: Local dev environment setup and HTML sanitisation
 
-- Re-saved the production page as `EOI metadata editor _ NTG Central.html` (replacing `eoi-metadata-editor.htm`).
+- Re-saved the production page as `Documents metadata editor _ NTG Central.html` (replacing `eoi-metadata-editor.htm`).
 - Removed all `.download` suffix references from the HTML and renamed/deleted `.download` files in the assets directory.
 - Updated `package.json` `dev` script to serve the new HTML filename via Vite.
 - Removed broken `JSON.parse('')` Squiz template artefact from the HTML.

@@ -62,7 +62,7 @@
 
     // ========== ACCESSIBILITY: Initialize focusable cells ==========
     var initEditableCells = function () {
-      // Text and datepicker fields
+      // Text fields
       $(".edit_area").each(function () {
         var $el = $(this);
         if (!$el.attr("tabindex")) {
@@ -209,20 +209,8 @@
       }
 
       // Multiselect: build checkbox list
-      // For field 446182 (Advertise), restrict options to WoG + current Agency
-      var allowedVals = null;
-      if (fieldid === "446182") {
-        var $row = $select.closest("tr");
-        var agencyVal = $row
-          .find('select.metadata_options[data-metadatafieldid="445640"]')
-          .val();
-        allowedVals = agencyVal ? ["WoG", agencyVal] : ["WoG"];
-      }
-
       var $list = $('<div class="multiselect-list"></div>');
       $select.find("option").each(function () {
-        if (allowedVals !== null && allowedVals.indexOf($(this).val()) === -1)
-          return;
         var $cb = $("<input type='checkbox'/>")
           .val($(this).val())
           .prop("checked", $(this).is(":selected"));
@@ -337,34 +325,8 @@
           // Attribute field (e.g., Status)
           submitStatusAttribute(newVal, assetid, attrname);
         } else {
-          // Metadata field (e.g., Agency, Designation)
+          // Metadata field (e.g., Resource Type)
           submit(newVal, assetid, fieldid);
-          // Sync advertise (field 446182) when Agency (445640) changes:
-          // update as if the advertise multiselect were opened for the new agency
-          // and saved unchanged — preserve WoG state, replace old agency with new.
-          if (fieldid === "445640") {
-            var $row = $select.closest("tr");
-            var $advertiseSelect = $row.find(
-              'select.metadata_options[data-metadatafieldid="446182"]',
-            );
-            if ($advertiseSelect.length) {
-              var currentVals = $advertiseSelect.val() || [];
-              var hasWoG = currentVals.indexOf("WoG") !== -1;
-              var hadAgency = currentVals.some(function (v) {
-                return v !== "WoG";
-              });
-              var advertiseVals = [];
-              if (hasWoG) advertiseVals.push("WoG");
-              if (newVal && hadAgency) advertiseVals.push(newVal);
-              var advertiseStr = advertiseVals.join("; ");
-              $advertiseSelect.val(advertiseVals);
-              var $advertiseDisplay = $advertiseSelect.prev(
-                ".metadata_option_display",
-              );
-              $advertiseDisplay.text(getOptionDisplayText($advertiseSelect));
-              submit(advertiseStr, assetid, "446182");
-            }
-          }
         }
       },
     );
@@ -495,153 +457,11 @@
       });
     }
 
-    makeEditable(
-      ".metadata-editor .edit_area:not([data-datepicker='true'])",
-      function (value, $el) {
-        var assetid = $el.closest("tr").attr("id");
-        var fieldid = $el.attr("data-metadatafieldid");
-        submit(value, assetid, fieldid);
-      },
-    );
-
-    // Helper functions for date conversion
-    function isoToAustralian(isoDate) {
-      if (!isoDate || isoDate === "") return "";
-      // Handle both YYYY-MM-DD and YYYY-MM-DD HH:MM:SS formats
-      var datePart = isoDate.split(" ")[0];
-      var parts = datePart.split("-");
-      if (parts.length === 3) {
-        return parts[2] + "/" + parts[1] + "/" + parts[0]; // DD/MM/YYYY
-      }
-      return isoDate; // Return original if not in expected format
-    }
-
-    function australianToIso(ausDate) {
-      if (!ausDate || ausDate === "") return "";
-      var parts = ausDate.split("/");
-      if (parts.length === 3) {
-        return parts[2] + "-" + parts[1] + "-" + parts[0]; // YYYY-MM-DD
-      }
-      return ausDate; // Return original if not in expected format
-    }
-
-    // Initialize Bootstrap Datepicker for closing date fields.
-    // activateDatepicker is declared before .each() so it can also be called
-    // from delegated handlers that survive DataTables DOM rewrite.
-    var activateDatepicker = function ($field) {
-      if ($field.find("input").length > 0) return; // Already editing
-
-      var currentText = $field.text().trim();
-
-      // Create input element
-      var $input = $('<input type="text" class="form-control">');
-      $input.val(currentText);
-
-      var $saveBtn = $(
-        '<button type="button" class="ntgc-btn btn-sm ntgc-btn--secondary" data-action="save"><span class="fal fa-save"></span> Save</button>',
-      );
-      var $cancelBtn = $(
-        '<button type="button" class="ntgc-btn btn-sm ntgc-btn--tertiary" data-action="cancel">Cancel</button>',
-      );
-      var $actions = $(
-        '<div style="margin-top:4px;display:flex;gap:4px;">',
-      ).append($saveBtn, $cancelBtn);
-
-      // Clear the div and add the input + buttons
-      $field.empty().append($input, $actions);
-
-      // Track what the datepicker has selected (may differ from typed value)
-      var selectedIsoDate = null;
-      var selectedDisplayDate = null;
-
-      // Initialize datepicker on the input
-      $input.datepicker({
-        format: "dd/mm/yyyy",
-        autoclose: true,
-        todayBtn: "linked",
-        todayHighlight: true,
-        orientation: "bottom auto",
-        container: "body",
-      });
-
-      $input.datepicker("show");
-      // Set focus after datepicker initializes
-      setTimeout(function () {
-        $input.focus();
-      }, 50);
-
-      // When a date is chosen in the picker, record it but don't submit yet
-      $input.on("changeDate", function (e) {
-        if (e.date) {
-          selectedDisplayDate = $input.datepicker("getFormattedDate");
-          selectedIsoDate = australianToIso(selectedDisplayDate);
-        }
-      });
-
-      var closeDate = function () {
-        $input.datepicker("destroy");
-        $field.empty().text(currentText);
-        detachFocusTrap($field);
-        $field.focus();
-      };
-
-      $cancelBtn.on("click", function (e) {
-        e.stopPropagation();
-        closeDate();
-      });
-
-      $saveBtn.on("click", function (e) {
-        e.stopPropagation();
-        // Use picker-selected date if available, otherwise parse typed value
-        var displayDate = selectedDisplayDate || $input.val().trim();
-        var isoDate = selectedIsoDate || australianToIso(displayDate);
-        var assetid = $field.closest("tr").attr("id");
-        var fieldid = $field.attr("data-metadatafieldid");
-        $input.datepicker("destroy");
-        $field.empty().text(displayDate);
-        detachFocusTrap($field);
-        $field.focus();
-        submit(isoDate, assetid, fieldid);
-      });
-
-      // Add Escape handler to close datepicker
-      $input.on("keydown.datepickerEsc", function (e) {
-        if (e.keyCode === 27) {
-          // Escape
-          e.preventDefault();
-          closeDate();
-        }
-      });
-
-      // Attach focus trap for Tab/Shift+Tab navigation
-      attachFocusTrap($field, $field, closeDate);
-    };
-
-    // Convert ISO dates to Australian format for display and apply cursor style
-    $(".edit_area[data-datepicker='true']").each(function () {
-      var $field = $(this);
-      $field.text(isoToAustralian($field.text().trim()));
-      $field.css({ cursor: "pointer", minHeight: "1em" });
+    makeEditable(".metadata-editor .edit_area", function (value, $el) {
+      var assetid = $el.closest("tr").attr("id");
+      var fieldid = $el.attr("data-metadatafieldid");
+      submit(value, assetid, fieldid);
     });
-
-    // Delegate from document so handlers survive DataTables DOM rewrite
-    $(document).on(
-      "click.datepicker",
-      ".edit_area[data-datepicker='true']",
-      function () {
-        activateDatepicker($(this));
-      },
-    );
-    $(document).on(
-      "keydown.datepicker",
-      ".edit_area[data-datepicker='true']",
-      function (e) {
-        if (e.keyCode === 13) {
-          e.preventDefault();
-          activateDatepicker($(this));
-        }
-      },
-    );
 
     function submit(content, assetID, fieldid) {
       js_api.setMetadata({
@@ -745,19 +565,12 @@
       var $row = $('tr[id="' + updatedData.assetid + '"]');
       if (!$row.length) return;
 
-      // For plain-text and date fields, also update the visible cell text.
+      // For plain-text fields, also update the visible cell text.
       var $cell = $row.find(
         '.edit_area[data-metadatafieldid="' + updatedData.fieldid + '"]',
       );
       if ($cell.length) {
-        // Check if this is a datepicker field
-        if ($cell.attr("data-datepicker") === "true") {
-          // Convert ISO date to Australian format
-          var displayValue = isoToAustralian(updatedData.value);
-          $cell.text(displayValue);
-        } else {
-          $cell.text(updatedData.value);
-        }
+        $cell.text(updatedData.value);
       }
 
       if (dtTable) {
@@ -779,111 +592,15 @@
 
     var transaction = {};
 
-    function autoRenameButtonFactory($el, $textarea) {
-      var attrName = $el.attr("data-attributename");
-      var isTitle = attrName === "title" || attrName === "short_name";
-      var isName = attrName === "name";
-      if (!isTitle && !isName) return null;
-
-      // Convert free text to a lowercase hyphenated slug
-      function slugify(str) {
-        return str
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-+|-+$/g, "");
-      }
-
-      var $autoBtn = $(
-        '<button type="button" class="ntgc-btn btn-sm ntgc-btn--secondary" data-action="auto-rename"><span class="fal fa-magic"></span> Auto</button>',
-      );
-
-      $autoBtn.on("click", function (e) {
-        e.stopPropagation();
-        var $row = $el.closest("tr");
-
-        // Shared field reads
-        var $desigSelect = $row.find("select[data-metadatafieldid='445634']");
-        var desigVals = $desigSelect.val() || [];
-
-        var $posTitleCell = $row.find(
-          ".edit_area[data-metadatafieldid='445504']",
-        );
-        var $posTitleTA = $posTitleCell.find("textarea");
-        var posTitle = (
-          $posTitleTA.length ? $posTitleTA.val() : $posTitleCell.text()
-        ).trim();
-
-        var $agencySelect = $row.find("select[data-metadatafieldid='445640']");
-        var agencyVal = $agencySelect.val() || "";
-
-        if (isTitle) {
-          // Document Title: "PREFIX DESIG-KEYS Position Title AGENCY JD"
-          var fileName = $row
-            .find(".edit_area[data-attributename='name']")
-            .text()
-            .trim();
-          var prefix;
-          if (/supn|supernumerary/i.test(fileName)) {
-            prefix = "SUPN";
-          } else {
-            var numMatch = /(\d{3,})/.exec(fileName);
-            prefix = numMatch ? numMatch[1] : "PN";
-          }
-          var designStr = desigVals
-            .map(function (v) {
-              return v.toUpperCase();
-            })
-            .join("-");
-          var agencyKey = agencyVal.toUpperCase();
-          var autoName = [prefix, designStr, posTitle, agencyKey, "JD"]
-            .filter(Boolean)
-            .join(" ")
-            .replace(/\s{2,}/g, " ")
-            .trim();
-          $textarea.val(autoName).focus();
-        } else {
-          // File Name: "prefix-desig-keys-position-title-agency-jd.ext"
-          var currentFileName = $textarea.val();
-          var extMatch = /(\.[ a-zA-Z0-9]+)$/.exec(currentFileName);
-          var ext = extMatch ? extMatch[1].toLowerCase() : "";
-          var fnPrefix;
-          if (/supn|supernumerary/i.test(currentFileName)) {
-            fnPrefix = "supn";
-          } else {
-            var fnNumMatch = /(\d{3,})/.exec(currentFileName);
-            fnPrefix = fnNumMatch ? fnNumMatch[1] : "pn";
-          }
-          var fnDesignStr = desigVals
-            .map(function (v) {
-              return v.toLowerCase();
-            })
-            .join("-");
-          var fnAgencyKey = agencyVal.toLowerCase();
-          var autoFileName =
-            [fnPrefix, fnDesignStr, slugify(posTitle), fnAgencyKey, "jd"]
-              .filter(Boolean)
-              .join("-")
-              .replace(/-{2,}/g, "-") + ext;
-          $textarea.val(autoFileName).focus();
-        }
-      });
-
-      return $autoBtn;
-    }
-
-    makeEditable(
-      ".attribute-editor .edit_area",
-      function (value, $el) {
-        transaction = {
-          attrValue: value,
-          assetid: $el.closest("tr").attr("id"),
-          attrName: $el.attr("data-attributename"),
-        };
-        $el.attr("data-newvalue", value).addClass("pending");
-        submitAttr(transaction);
-      },
-      autoRenameButtonFactory,
-    );
+    makeEditable(".attribute-editor .edit_area", function (value, $el) {
+      transaction = {
+        attrValue: value,
+        assetid: $el.closest("tr").attr("id"),
+        attrName: $el.attr("data-attributename"),
+      };
+      $el.attr("data-newvalue", value).addClass("pending");
+      submitAttr(transaction);
+    });
 
     function submitAttr(transaction) {
       js_api.setAttribute({
@@ -977,22 +694,6 @@
           return;
         }
 
-        // File assets (Word, PDF, etc.) store their title as the "title"
-        // attribute, not "short_name". If the page was rendered with the old
-        // template, silently retry with "title" and patch the DOM so future
-        // edits on this row go straight to the correct attribute.
-        if (
-          transaction.attrName === "short_name" &&
-          msg.indexOf("does not exist") !== -1
-        ) {
-          $('tr[id="' + transaction.assetid + '"]')
-            .find('.edit_area[data-attributename="short_name"]')
-            .attr("data-attributename", "title");
-          transaction.attrName = "title";
-          submitAttr(transaction);
-          return;
-        }
-
         displayResultAttr(msg, "error");
         $('tr[id="' + transaction.assetid + '"]')
           .find('.edit_area[data-attributename="' + transaction.attrName + '"]')
@@ -1029,7 +730,7 @@
       pageLength: 10,
       pagingType: "simple_numbers",
       ordering: true,
-      order: [[0, "desc"]],
+      order: [[0, "asc"]],
       searching: true,
       info: true,
       // Custom dom: top ctrl div holds length+filter (hidden; JS moves them to
@@ -1048,26 +749,6 @@
               tmp.querySelector(".metadata_option_display") ||
               tmp.querySelector(".edit_area");
             return el ? el.textContent.trim() : tmp.textContent.trim();
-          },
-        },
-        {
-          // Close date (col 6): isoToAustralian() has already run, so the DOM
-          // text is DD/MM/YYYY. Lexicographic sort is wrong; convert to
-          // YYYYMMDD string for sort/type so rows order chronologically.
-          targets: 6,
-          render: function (data, type) {
-            if (type === "display") return data;
-            var tmp = document.createElement("div");
-            tmp.innerHTML = data;
-            var el = tmp.querySelector(".edit_area");
-            var text = el ? el.textContent.trim() : tmp.textContent.trim();
-            if (type === "sort" || type === "type") {
-              var parts = text.split("/");
-              if (parts.length === 3) {
-                return parts[2] + parts[1] + parts[0]; // e.g. "20250630"
-              }
-            }
-            return text; // filter: keep DD/MM/YYYY so users can search by date
           },
         },
       ],
@@ -1105,10 +786,9 @@
     }
 
     var filterConfigs = [
-      { label: "Status", colIdx: 1, multiVal: false },
-      { label: "Designation", colIdx: 5, multiVal: true },
-      { label: "Agency", colIdx: 8, multiVal: false },
-      { label: "Location", colIdx: 9, multiVal: true },
+      { label: "Type", colIdx: 1, multiVal: false },
+      { label: "Status", colIdx: 3, multiVal: false },
+      { label: "Resource Type", colIdx: 5, multiVal: false },
     ];
 
     var $filterBar = $('<div class="dt-filter-bar ntgc-px-144"></div>');
@@ -1214,12 +894,6 @@
       var defaultLabel;
       if (cfg.label === "Status") {
         defaultLabel = "All status";
-      } else if (cfg.label === "Agency") {
-        defaultLabel = "All agencies";
-      } else if (cfg.label === "Designation") {
-        defaultLabel = "All designations";
-      } else if (cfg.label === "Location") {
-        defaultLabel = "All locations";
       } else {
         defaultLabel = "All " + cfg.label + "s";
       }

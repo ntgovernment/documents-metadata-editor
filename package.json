@@ -1,8 +1,8 @@
 {
-  "name": "eoi-metadata-editor",
+  "name": "documents-metadata-editor",
   "version": "1.0.0",
   "scripts": {
-    "dev": "vite --open \"/EOI metadata editor _ NTG Central.html\""
+    "dev": "vite --open \"/Documents metadata editor _ NTG Central.html\""
   },
   "devDependencies": {
     "vite": "^6.2.1"

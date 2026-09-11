@@ -30,47 +30,6 @@
             '</select>';
     }
 
-    function makeMultiSelect(data, currentvalues, label) {
-
-        if (!data.hasOwnProperty('attributes')) {
-            return '';
-        }
-
-        var selectOptions = data.attributes.select_options;
-        if (!selectOptions || !selectOptions.value) {
-            return '';
-        }
-
-        var options = selectOptions.value;
-        var rawSelected = Array.isArray(currentvalues)
-            ? currentvalues
-            : (currentvalues ? String(currentvalues).split(';').map(function (v) { return v.trim(); }) : []);
-
-        // Lowercase the incoming values for case-insensitive matching
-        var rawSelectedLower = rawSelected.map(function (v) { return String(v).toLowerCase(); });
-
-        var matchedKeys = [];
-        var optionsList = [];
-
-        Object.keys(options).forEach(function (key) {
-            var keyLower = String(key).toLowerCase();
-            var labelLower = String(options[key]).toLowerCase();
-            // Match against key OR label, both case-insensitively
-            var isSelected = (rawSelectedLower.indexOf(keyLower) !== -1 || rawSelectedLower.indexOf(labelLower) !== -1);
-            if (isSelected) { matchedKeys.push(key); }
-            var label = String(options[key]).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            var safeKey = String(key).replace(/"/g, '&quot;');
-            optionsList.push('<option value="' + safeKey + '"' + (isSelected ? ' selected' : '') + '>' + label + '</option>');
-        });
-
-        return '<select multiple class="metadata_options"' +
-            ' data-metadataFieldid="' + metadatafield.assetid + '"' +
-            ' data-current="' + JSON.stringify(matchedKeys).replace(/"/g, '&quot;') + '"' +
-            (label ? ' data-label="' + label + '"' : '') + '>' +
-            optionsList.join('') +
-            '</select>';
-    }
-
     // Helper for rendering the Status dropdown.
     //
     // The Squiz Matrix asset status is a reserved property (not a custom attribute).

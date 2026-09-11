@@ -32,6 +32,24 @@
 
         var dataStatus = statusCodeKey ? ' data-status="' + statusCodeKey + '"' : '';
         print('<td class="metadata-editor"' + dataStatus + ' style="background-color:%asset_status_colour%">');
+    </script>
+    <script runat="server">
+        var currentstatus = "%asset_status_description%";
+        var statusMapping = { '1': 'Archive', '2': 'Under Construction', '16': 'Live', '64': 'Safe Editing' };
+        var statusCodeKey = '';
+        var currentLower = String(currentstatus).toLowerCase().trim();
+
+        Object.keys(statusMapping).forEach(function(code) {
+            var labelLower = String(statusMapping[code]).toLowerCase();
+            // Match "Archive" or "Archived", "Live" or "Live", etc.
+            if (String(code).toLowerCase() === currentLower ||
+                labelLower === currentLower ||
+                (labelLower + 'd') === currentLower) {
+                statusCodeKey = String(statusMapping[code]).toLowerCase().replace(/ /g, '-');
+            }
+        });
+
+        var dataStatus = statusCodeKey ? ' data-status="' + statusCodeKey + '"' : '';
         print('<div class="metadata_option_display" data-label="status"' + dataStatus + '>' + currentstatus + '</div>');
         print(makeStatusDropdown(currentstatus, 'status'));
     </script>
@@ -48,7 +66,7 @@
 
             //SET THESE TWO VARIABLES
             var metadatafield = %globals_asset_assetid:834003^as_asset:asset_data%;
-            var currentvalue = "%asset_metadata_resource_doctype%";
+            var currentvalue = "%asset_metadata_resource.doctype%";
 
             //... creates a dropdown field based on metadata information - see server-functions.html
             print(makeDropdown(metadatafield, currentvalue, 'resource type'));
@@ -59,7 +77,7 @@
 
     <!--@@ Resource Description @@-->
     <td class="metadata-editor">
-        <div class="edit_area" data-metadataFieldID="834005" data-label="resource description">%asset_metadata_resource_description%</div>
+        <div class="edit_area" data-metadataFieldID="834005" data-label="resource description">%asset_metadata_resource.description%</div>
     </td>
 
     <!--@@ URL @@-->

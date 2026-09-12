@@ -49,7 +49,7 @@ git push origin dev
 
 ## Notes
 
-- Only commit `src/editor.js`, `src/eoi-metadata-editor.css`, `row-template.html`, `server-functions.html`, and documentation files (`DEVELOPER_NOTES.md`, `.github/**`).
+- Only commit `src/editor.js`, `src/eoi-metadata-editor.css`, `row-template.html`, and documentation files (`DEVELOPER_NOTES.md`, `.github/**`).
 - Do **not** commit `Documents metadata editor _ NTG Central.html` — it is a locally-sanitised copy of the production page and is not deployed via git.
 - Do **not** commit `Documents metadata editor _ NTG Central_files/` — these are gitignored browser-saved production assets.
 - `src/update-metadata.js` is read-only; only commit it if it was intentionally updated.

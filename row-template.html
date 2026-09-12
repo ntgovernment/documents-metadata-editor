@@ -1,84 +1,29 @@
 <!--TYPE FORMAT / DEFAULT FORMAT-->
-
-<tr id="%asset_assetid%" data-status="%asset_status_description%">
-
+<tr id="%asset_assetid%" data-asset-id="%asset_assetid%">
     <!--@@ No @@-->
     <td>%asset_position%</td>
-
     <!--@@ Type @@-->
     <td>%asset_type%</td>
-
     <!--@@ Asset ID @@-->
     <td>
         <a href="./?a=%asset_assetid%/_admin" target="_blank">%asset_assetid%</a>
     </td>
-
     <!--@@ Status @@-->
-    <script runat="server">
-        var currentstatus = "%asset_status_description%";
-        var statusMapping = { '1': 'Archive', '2': 'Under Construction', '16': 'Live', '64': 'Safe Editing' };
-        var statusCodeKey = '';
-        var currentLower = String(currentstatus).toLowerCase().trim();
-
-        Object.keys(statusMapping).forEach(function(code) {
-            var labelLower = String(statusMapping[code]).toLowerCase();
-            // Match "Archive" or "Archived", "Live" or "Live", etc.
-            if (String(code).toLowerCase() === currentLower ||
-                labelLower === currentLower ||
-                (labelLower + 'd') === currentLower) {
-                statusCodeKey = String(statusMapping[code]).toLowerCase().replace(/ /g, '-');
-            }
-        });
-
-        var dataStatus = statusCodeKey ? ' data-status="' + statusCodeKey + '"' : '';
-        print('<td class="metadata-editor"' + dataStatus + ' style="background-color:%asset_status_colour%">');
-    </script>
-    <script runat="server">
-        var currentstatus = "%asset_status_description%";
-        var statusMapping = { '1': 'Archive', '2': 'Under Construction', '16': 'Live', '64': 'Safe Editing' };
-        var statusCodeKey = '';
-        var currentLower = String(currentstatus).toLowerCase().trim();
-
-        Object.keys(statusMapping).forEach(function(code) {
-            var labelLower = String(statusMapping[code]).toLowerCase();
-            // Match "Archive" or "Archived", "Live" or "Live", etc.
-            if (String(code).toLowerCase() === currentLower ||
-                labelLower === currentLower ||
-                (labelLower + 'd') === currentLower) {
-                statusCodeKey = String(statusMapping[code]).toLowerCase().replace(/ /g, '-');
-            }
-        });
-
-        var dataStatus = statusCodeKey ? ' data-status="' + statusCodeKey + '"' : '';
-        print('<div class="metadata_option_display" data-label="status"' + dataStatus + '>' + currentstatus + '</div>');
-        print(makeStatusDropdown(currentstatus, 'status'));
-    </script>
+    <td class="metadata-editor" style="background-color:%asset_status_colour%;">
+        <div class="edit_area" data-editor-field="status" data-label="status">%asset_status_description%</div>
     </td>
-
     <!--@@ Name @@-->
     <td class="attribute-editor">
-        <div class="edit_area" data-attributename="name" data-label="name">%asset_name%</div>
+        <div class="edit_area" data-editor-field="name" data-attributename="name" data-label="name">%asset_name%</div>
     </td>
-
     <!--@@ Resource Type @@-->
     <td class="metadata-editor">
-        <script runat="server">
-
-            var currentvalue = "%asset_metadata_resource.doctype%";
-
-            //... creates a dropdown field with a hardcoded option list - see server-functions.html
-            print(makeResourceTypeDropdown(currentvalue, 'resource type'));
-            print(`<span class="d-none">${currentvalue}</span>`);
-
-        </script>
+        <div class="edit_area" data-editor-field="resource-type" data-metadatafieldid="834003" data-label="resource type">%asset_metadata_resource_doctype%</div>
     </td>
-
     <!--@@ Resource Description @@-->
     <td class="metadata-editor">
-        <div class="edit_area" data-metadataFieldID="834005" data-label="resource description">%asset_metadata_resource.description%</div>
+        <div class="edit_area" data-editor-field="resource-description" data-metadatafieldid="834005" data-label="resource description">%asset_metadata_resource.description%</div>
     </td>
-
     <!--@@ URL @@-->
     <td><a href="%asset_url%" target="_blank">%asset_url%</a></td>
-
 </tr>

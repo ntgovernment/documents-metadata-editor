@@ -5,8 +5,8 @@ Documents metadata editor is a lightweight web tool for managing Squiz Matrix "D
 The editor supports:
 
 - **Inline text editing** for the Name and Resource Description fields (click a field → textarea appears)
-- **Single‑select dropdown** for Resource Type — clicking the value display opens a floating `<select>` popup with Save/Cancel actions
-- **Attribute‑based dropdown with numeric codes** for Status, rendered via the server helper `makeStatusDropdown` and storing one of four numeric values (1 = Archive, 2 = Under Construction, 16 = Live, 64 = Safe Editing). Client logic calls `js_api.setAssetStatus` instead of `setMetadata` for this field.
+- **Client-side single-select dropdown** for Resource Type — the Default Format outputs the current metadata value and `editor.js` builds the control with Save/Cancel actions
+- **Client-side Status dropdown** storing one of four numeric values (1 = Archive, 2 = Under Construction, 16 = Live, 64 = Safe Editing). Client logic calls `js_api.setAssetStatus` instead of `setMetadata` for this field.
 - **Full keyboard and screen‑reader accessibility** — all editable cells are focusable via Tab, activatable with Enter, and navigable with keyboard controls (Escape cancels, Tab/Shift+Tab exits, etc.). ARIA roles/labels are injected automatically, and visual focus indicators highlight hovered or focused cells.
 - **DataTables filtering, sorting, and pagination** — the table displays up to 10 rows per page with pagination controls. Column filters are provided for Type, Status, and Resource Type; the global search box filters across all columns. After any edit, the affected row is redrawn automatically so search and sort results stay in sync.
 
@@ -26,7 +26,6 @@ Navigate to `http://localhost:5173/Documents%20metadata%20editor%20_%20NTG%20Cen
 | File                    | Role                                                                                |
 | ------------------------ | ------------------------------------------------------------------------------------ |
 | `row-template.html`     | Squiz Matrix asset listing row template (Default Format)                           |
-| `server-functions.html` | Squiz Matrix server-side helpers (`makeDropdown`, `makeStatusDropdown`)             |
 | `src/editor.js`         | Client-side interaction logic — inline editing, dropdowns, DataTables, JS API calls |
 
 See [DEVELOPER_NOTES.md](DEVELOPER_NOTES.md) for the Squiz-side setup checklist (Configuration folder, JS API key, metadata field permissions).

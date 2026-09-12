@@ -1,4 +1,3 @@
 # Squiz Matrix template files — contain server-side keyword syntax (%keyword%)
 # that Prettier misinterprets as JS operators and corrupts on format.
 row-template.html
-server-functions.html

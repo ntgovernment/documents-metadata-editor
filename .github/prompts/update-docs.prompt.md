@@ -31,7 +31,7 @@ The file has these major sections (in order). Update the section(s) that the cha
 8. **Interaction Behaviour and Editing Guidelines** — field-specific UX rules
 9. **Hover Edit Tooltip** — CSS/JS implementation
 10. **Metadata Field ID Reference** — table of all field IDs and types
-11. **Squiz Matrix Template Reference** — row-template.html and server-functions.html patterns
+11. **Squiz Matrix Template Reference** — row-template.html and client-side control patterns
 12. **Squiz Matrix JS API Field Value Formats** — what each field type expects from setMetadata
 13. **HTML Sanitisation Checklist** — steps to run after every production re-save
 14. **Quick Start and Decision Guide** — the fast path for developers and agents

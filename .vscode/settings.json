@@ -12,8 +12,7 @@
   // Associate the Squiz template files with "html" but tell VS Code not to
   // attempt JavaScript diagnostics inside their <script runat="server"> blocks.
   "files.associations": {
-    "row-template.html": "html",
-    "server-functions.html": "html"
+    "row-template.html": "html"
   },
 
   // Prevent format-on-save for the Squiz template files and the generated

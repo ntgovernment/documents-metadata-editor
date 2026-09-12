@@ -49,17 +49,12 @@ Changes to interaction logic are made in `src/editor.js`, then deployed to the N
 | `src/editor.js`                                      | Custom interaction logic — event handlers, API calls, UI feedback      | **Yes**                             |
 | `src/update-metadata.js`                             | Squiz Matrix JS API library                                            | Read-only                           |
 | `src/jquery-3.4.1.min.js`                            | jQuery 3.4.1                                                           | Read-only                           |
-| `src/jquery.editable.js`                             | Jeditable inline-edit plugin — no longer used; kept as local copy only | Read-only                           |
 | `src/datatables.lib.js`                              | DataTables library                                                     | Read-only                           |
 | `src/bootstrap.min.css`                              | Bootstrap CSS (local copy)                                             | Read-only                           |
-| `src/bootstrap-datepicker.*`                         | Bootstrap Datepicker JS and CSS                                        | Read-only                           |
 | `src/eoi-metadata-editor.css`                        | Custom styles for this editor                                          | Yes                                 |
-| `EOI metadata editor _ NTG Central_files/`           | Browser-saved production assets — gitignored; do not edit              | No (ignored)                        |
-| `EOI metadata editor _ NTG Central_files/roboto.css` | Roboto font — replaced with Google Fonts `@import` to avoid CORS       | Read-only                           |
 | `public/webfonts/`                                   | Font Awesome font files served by Vite at `/webfonts/`                 | Read-only                           |
 | `public/cdn/userdata/`                               | Stub JSON responses for NTG Central user-profile API calls             | Yes (stubs)                         |
 | `row-template.html`                                  | Squiz Matrix asset listing row template (source of truth for row HTML) | Yes                                 |
-| `server-functions.html`                              | Squiz Matrix server-side helpers (`makeDropdown`, `makeMultiSelect`)   | Yes                                 |
 | `vite.config.js`                                     | Vite configuration                                                     | Yes                                 |
 | `package.json`                                       | npm scripts — `dev` starts Vite                                        | Yes                                 |
 | `.prettierignore`                                    | Prevents Prettier from corrupting Squiz `%keyword%` syntax             | Yes                                 |
@@ -67,7 +62,7 @@ Changes to interaction logic are made in `src/editor.js`, then deployed to the N
 | `.github/prompts/update-docs.prompt.md`              | Copilot `/update-docs` prompt — instructions for updating all docs     | Yes                                 |
 | `.github/prompts/deploy-to-dev.prompt.md`            | Copilot `/deploy-to-dev` prompt — stage, commit, push to `origin dev`  | Yes                                 |
 
-> **Rule:** Edit `row-template.html` and `server-functions.html` for template/field changes, and `editor.js` for interaction changes. Never modify `update-metadata.js`. The saved HTML page is re-fetched from production when rows change; apply the sanitisation checklist below after every refresh.
+> **Rule:** Edit `row-template.html` for template/field changes and `editor.js` for interaction changes. Status and Resource Type controls are generated client-side; Page Contents does not need server-side dropdown helpers. Never modify `update-metadata.js`. The saved HTML page is re-fetched from production when rows change; apply the sanitisation checklist below after every refresh.
 
 ---
 

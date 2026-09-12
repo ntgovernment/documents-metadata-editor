@@ -9,6 +9,52 @@
 
   $(document).ready(function () {
     var dtTable;
+    var statusOptions = [
+      { value: "1", label: "Archive" },
+      { value: "2", label: "Under Construction" },
+      { value: "16", label: "Live" },
+      { value: "64", label: "Safe Editing" },
+    ];
+    var resourceTypeOptions = [
+      "",
+      "Instruction",
+      "General order",
+      "Form",
+      "Guideline",
+      "Procedure",
+      "Report",
+      "Plan",
+      "Fees",
+      "Informational",
+      "Legislation",
+      "Delegation",
+      "Policy",
+      "Memorandum",
+      "Training program",
+      "Template",
+    ].map(function (label) {
+      return { value: label, label: label };
+    });
+
+    function getStatusOption(value) {
+      var normalized = String(value).toLowerCase().trim();
+      if (normalized === "archived") normalized = "archive";
+      return statusOptions.find(function (option) {
+        return (
+          option.value === normalized || option.label.toLowerCase() === normalized
+        );
+      });
+    }
+
+    function setStatusPresentation($cell, label) {
+      var statusKey = String(label).toLowerCase().replace(/\s+/g, "-");
+      if (statusKey === "archived") statusKey = "archive";
+      $cell.closest("td").attr("data-status", statusKey);
+    }
+
+    $('.edit_area[data-editor-field="status"]').each(function () {
+      setStatusPresentation($(this), $(this).text().trim());
+    });
 
     //Default selections
     $(".metadata_options").each(function () {
@@ -457,11 +503,102 @@
       });
     }
 
-    makeEditable(".metadata-editor .edit_area", function (value, $el) {
+    function makeSelectEditable(selector, options, onSave) {
+      $(selector).css({ cursor: "pointer", minHeight: "1em" });
+
+      var activateEdit = function ($el) {
+        if ($el.find("select").length) return;
+        var savedText = $el.text().trim();
+        var normalizedSavedText = savedText.toLowerCase();
+        var currentStatusOption = getStatusOption(savedText);
+        var $select = $('<select class="form-control single-dropdown-select"></select>');
+
+        options.forEach(function (option) {
+          var $option = $("<option></option>")
+            .val(option.value)
+            .text(option.label);
+          if (
+            option.label.toLowerCase() === normalizedSavedText ||
+            option.value.toLowerCase() === normalizedSavedText ||
+            (currentStatusOption && option.value === currentStatusOption.value)
+          ) {
+            $option.prop("selected", true);
+          }
+          $select.append($option);
+        });
+
+        var $saveBtn = $(
+          '<button type="button" class="ntgc-btn btn-sm ntgc-btn--secondary" data-action="save"><span class="fal fa-save"></span> Save</button>',
+        );
+        var $cancelBtn = $(
+          '<button type="button" class="ntgc-btn btn-sm ntgc-btn--tertiary" data-action="cancel">Cancel</button>',
+        );
+        var $actions = $('<div class="single-dropdown-actions"></div>').append(
+          $saveBtn,
+          $cancelBtn,
+        );
+
+        var closeEdit = function () {
+          $el.empty().text(savedText);
+          detachFocusTrap($el);
+          $el.focus();
+        };
+
+        $el.empty().append($select, $actions);
+        $saveBtn.on("click", function (e) {
+          e.stopPropagation();
+          detachFocusTrap($el);
+          onSave($select.val(), $el);
+        });
+        $cancelBtn.on("click", function (e) {
+          e.stopPropagation();
+          closeEdit();
+        });
+        $select.on("keydown.selectEdit", function (e) {
+          if (e.keyCode === 27) {
+            e.preventDefault();
+            closeEdit();
+          }
+        });
+        attachFocusTrap($el, $el, closeEdit);
+        $select.focus();
+      };
+
+      $(document).on("click.selectEdit", selector, function () {
+        activateEdit($(this));
+      });
+      $(document).on("keydown.selectEdit", selector, function (e) {
+        if (e.keyCode === 13) {
+          e.preventDefault();
+          activateEdit($(this));
+        }
+      });
+    }
+
+    makeSelectEditable(
+      '.edit_area[data-editor-field="status"]',
+      statusOptions,
+      function (value, $el) {
+        submitStatusAttribute(value, $el.closest("tr").attr("id"), "status");
+      },
+    );
+
+    makeSelectEditable(
+      '.edit_area[data-editor-field="resource-type"]',
+      resourceTypeOptions,
+      function (value, $el) {
+        submit(value, $el.closest("tr").attr("id"), $el.attr("data-metadatafieldid"));
+      },
+    );
+
+    makeEditable(
+      '.metadata-editor .edit_area:not([data-editor-field="status"]):not([data-editor-field="resource-type"])',
+      function (value, $el) {
       var assetid = $el.closest("tr").attr("id");
       var fieldid = $el.attr("data-metadatafieldid");
       submit(value, assetid, fieldid);
-    });
+      },
+    );
 
     function submit(content, assetID, fieldid) {
       js_api.setMetadata({
@@ -479,9 +616,7 @@
     // backend responds it returns that numeric value, so we need a lookup to
     // convert it back to a human label before updating the cell display.
     //
-    // The keys here mirror the options defined in server-functions.html's
-    // `makeStatusDropdown` helper. Keeping the mapping in one place avoids
-    // having to parse option text at runtime.
+    // The keys mirror the client-side Status options defined above.
     var statusCodeToLabel = {
       1: "Archive",
       2: "Under Construction",
@@ -524,15 +659,12 @@
           .toLowerCase()
           .replace(/ /g, "-");
         var $row = $('tr[id="' + statusTransaction.assetid + '"]');
-        var $statusCell = $row.find("td.metadata-editor").eq(0);
-        var $statusDisplay = $statusCell.find(
-          '.metadata_option_display[data-label="status"]',
+        var $statusDisplay = $row.find(
+          '.edit_area[data-editor-field="status"]',
         );
+        var $statusCell = $statusDisplay.closest("td");
 
-        // Update text and data-status on both <td> and <div>
-        $statusDisplay
-          .text(statusTransaction.attrValue)
-          .attr("data-status", statusKey);
+        $statusDisplay.text(statusTransaction.attrValue);
         $statusCell.attr("data-status", statusKey);
 
         if (dtTable) {

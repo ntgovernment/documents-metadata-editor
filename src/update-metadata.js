@@ -164,7 +164,7 @@
 
 			// Set some defaults for the HTTP Request
 			options = self._options(['params'],{
-						url:                'https://ntgcentral-dev.nt.gov.au/_web_services/update-metadata.js',
+						url:                '/_web_services/update-metadata.js',
 						method:             'POST',
 						contentType:        'application/json',
 						params:             [],
@@ -2211,7 +2211,7 @@
 							self._http(httpOptions, promiseFns);
 						}
 					}
-					xmlhttp.open("GET","https://ntgcentral-dev.nt.gov.au/_web_services/update-metadata.js" + "?SQ_ACTION=getToken",true);
+					xmlhttp.open("GET","/_web_services/update-metadata.js" + "?SQ_ACTION=getToken",true);
 					xmlhttp.send();
 				}
 			}
